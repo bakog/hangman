@@ -1,6 +1,6 @@
 # coding=utf-8
 import tkinter as tk
-from tkinter import ttk, Menu, Toplevel
+from tkinter import ttk, Menu, Toplevel, messagebox
 import sys
 import random
 
@@ -24,6 +24,18 @@ class App(tk.Tk):
         self.user_word= ''
         self.error = 0
 
+        # adatbeviteli mező a betűkhöz
+        user_char_value = tk.StringVar()
+        user_char_label = ttk.Label(mainframe, text="Melyik betűre tippelsz?")
+        user_char = ttk.Entry(mainframe, textvariable=user_char_value)
+        #frame a betűk jelzésére szolgáló gomboknak
+        word_frame = ttk.Frame(mainframe)
+
+        # képek megjelenítése hibák esetén
+        photo = tk.PhotoImage(file=str(self.error) + ".png")
+        photo_label = tk.Label(mainframe, image=photo)
+        photo_label.image = photo
+
         def setting(self):
             pass
 
@@ -32,17 +44,24 @@ class App(tk.Tk):
 
         def new_game():
             self.tippszam=0
+            self.error = 0
+
             self.word = random.choice(words).upper()
             self.user_chars = [ "_" for i in self.word ]
             print(self.word)
+            photo = tk.PhotoImage(file="0.png")
+            photo_label.configure(image=photo)
+            photo_label.image = photo
+            user_char_value.set("")
+            user_char.config(state="enabled")
             gombok = list()
 
             def test_char():
                 self.user_char= user_char.get().upper()
-                print(self.user_char)
+                #print(self.user_char)
                 self.tippszam+=1
                 if self.user_char in self.word:
-                    print("benne van")
+                    #print("benne van")
                     for i in range(len(self.word)):
                         if self.user_char== self.word[i]:
                             gombok[i].config(text=self.user_char)
@@ -50,12 +69,13 @@ class App(tk.Tk):
                             self.user_word = "".join(self.user_chars)
                     user_char_value.set('')
                     if self.user_word == self.word:
-                        print("kitaláltad")
-                    if self.error >=5:
-                        print("nincs több lehetőséged")
+                        #print("kitaláltad")
+                        messagebox.showinfo("You Win", "Ügyes vagy kitaláltad as szót {} tippből!".format(self.tippszam))
+                        user_char.config(state="disabled")
 
                 else:
                     self.error += 1
+
                     print(self.error, str(self.error) + ".png")
                     user_char_value.set('')
                     photo = tk.PhotoImage(file=str(self.error) + ".png")
@@ -65,19 +85,20 @@ class App(tk.Tk):
                     #photo_label.grid(row=2, column=0, columnspan=2)
                     #photo_label.update()
                     print("nincs benne")
+                    if self.error >=7:
+                        messagebox.showerror("Game Over","Nincs több lehetőséged, a játék vége!")
+                        user_char.config(state="disabled")
+                        print("nincs több lehetőséged")
 
 
 
 
-            user_char_label = ttk.Label(mainframe, text="Melyik betűre tippelsz?")
+            #beviteli mező megjelenítése
             user_char_label.grid(row=0, column=0)
-            user_char_value = tk.StringVar()
-            user_char_value.set('')
-            user_char = ttk.Entry(mainframe, textvariable=user_char_value)
             user_char.grid(row=0, column=1)
             user_char.bind('<Return>', lambda w: test_char())
 
-            word_frame = ttk.Frame(mainframe)
+            # betűk kijelzése
             word_frame.grid(row=1, column=0, columnspan=2)
 
             for i in range(len(self.word)):
@@ -85,15 +106,8 @@ class App(tk.Tk):
                 btn.grid(row=1, column=i)
                 gombok.append(btn)
 
-            #vaszon = tk.Canvas(mainframe, width=160, height=160, bg='white')
-            photo = tk.PhotoImage(file=str(self.error)+".png")
-            photo_label = tk.Label(mainframe, image=photo)
+            #kép kijelzése
             photo_label.grid(row=2, column=0, columnspan=2)
-            photo_label.image = photo
-            #photo_label.image.config(height=100)
-            #photo_label.image.config(width=100)
-
-
 
         def about():
             about_win = tk.Toplevel()
@@ -108,8 +122,14 @@ class App(tk.Tk):
 
             mainframe.bind("<Button-1>", lambda w: exit())
 
+            label_k = ttk.Label(mainframe, text="Programkód: ")
+            label_k.grid(row=0, column=0, sticky='E')
             label_keszito = ttk.Label(mainframe, text="Bakó Gábor")
-            label_keszito.pack()
+            label_keszito.grid(row=0, column=1, sticky='W')
+            label_g = ttk.Label(mainframe, text="Grafika: ")
+            label_g.grid(row=1, column=0, sticky='E')
+            label_grafika = ttk.Label(mainframe, text="Pénzes Zsófia")
+            label_grafika.grid(row=1, column=1, sticky='W')
 
 
 
