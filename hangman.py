@@ -26,18 +26,9 @@ class App(tk.Tk):
         self.user_word= ''
         self.error = 0
         self.best_tippszam = 0
+        self.gombok = list()
 
-        # adatbeviteli mező a betűkhöz
-        user_char_value = tk.StringVar()
-        user_char_label = ttk.Label(mainframe, text="Melyik betűre tippelsz?")
-        user_char = ttk.Entry(mainframe, textvariable=user_char_value)
-        #frame a betűk jelzésére szolgáló gomboknak
-        word_frame = ttk.Frame(mainframe)
 
-        # képek megjelenítése hibák esetén
-        photo = tk.PhotoImage(file=str(self.error) + ".png")
-        photo_label = tk.Label(mainframe, image=photo)
-        photo_label.image = photo
 
         def setting(self):
             pass
@@ -48,12 +39,55 @@ class App(tk.Tk):
         def new_game():
             self.tippszam=0
             self.error = 0
+            for btn in self.gombok:
+                btn.destroy()
+            self.gombok = list()
 
+
+            # kitalálandó szó kiválasztása
             self.word = random.choice(words).upper()
+            # legjobb megoldás
             self.best_tippszam = len(collections.Counter(self.word))
-            print(self.best_tippszam)
+            #print(self.best_tippszam)
 
-            #self.word = 'hálózati kártya'.upper()
+
+            # widgetek
+
+            # adatbeviteli mező a betűkhöz
+            user_char_value = tk.StringVar()
+            user_char_label = ttk.Label(mainframe, text="Melyik betűre tippelsz?")
+            user_char = ttk.Entry(mainframe, textvariable=user_char_value)
+            # frame a betűk jelzésére szolgáló gomboknak
+            word_frame = ttk.Frame(mainframe)
+
+            # képek megjelenítése hibák esetén
+            photo = tk.PhotoImage(file=str(self.error) + ".png")
+            photo_label = tk.Label(mainframe, image=photo)
+            photo_label.image = photo
+
+            # beviteli mező megjelenítése
+            user_char_label.grid(row=0, column=0)
+            user_char.grid(row=0, column=1)
+            user_char.bind('<Return>', lambda w: test_char())
+
+            # betűk kijelzése
+            word_frame.grid(row=1, column=0, columnspan=2)
+
+            for i in range(len(self.word)):
+                if self.word[i] != ' ':
+                    btn = ttk.Button(word_frame, text="_", width=2)
+                    btn.grid(row=1, column=i)
+                else:
+                    # btn = ttk.Button(word_frame,text=" ", width=2)
+                    label_space = tk.Label(word_frame, text=" ")
+                    label_space.grid(row=1, column=i, padx=10)
+                    # btn.grid_forget()
+                self.gombok.append(btn)
+
+            # kép kijelzése
+            photo_label.grid(row=2, column=0, columnspan=2)
+
+
             self.user_chars = [ "_" if i != ' ' else ' ' for i in self.word ]
             print(self.word)
             photo = tk.PhotoImage(file="0.png")
@@ -61,7 +95,6 @@ class App(tk.Tk):
             photo_label.image = photo
             user_char_value.set("")
             user_char.config(state="enabled")
-            gombok = list()
 
             def test_char():
                 self.user_char= user_char.get().upper()
@@ -71,7 +104,7 @@ class App(tk.Tk):
                     #print("benne van")
                     for i in range(len(self.word)):
                         if self.user_char== self.word[i]:
-                            gombok[i].config(text=self.user_char)
+                            self.gombok[i].config(text=self.user_char)
                             self.user_chars[i] = self.user_char
                             self.user_word = "".join(self.user_chars)
                     user_char_value.set('')
@@ -101,30 +134,6 @@ class App(tk.Tk):
                         user_char.config(state="disabled")
                         #print("nincs több lehetőséged")
 
-
-
-
-            #beviteli mező megjelenítése
-            user_char_label.grid(row=0, column=0)
-            user_char.grid(row=0, column=1)
-            user_char.bind('<Return>', lambda w: test_char())
-
-            # betűk kijelzése
-            word_frame.grid(row=1, column=0, columnspan=2)
-
-            for i in range(len(self.word)):
-                if self.word[i] != ' ':
-                    btn = ttk.Button(word_frame,text="_", width=2)
-                    btn.grid(row=1, column=i)
-                else:
-                    #btn = ttk.Button(word_frame,text=" ", width=2)
-                    label_space = tk.Label(word_frame, text=" ")
-                    label_space.grid(row=1, column=i, padx=10)
-                    #btn.grid_forget()
-                gombok.append(btn)
-
-            #kép kijelzése
-            photo_label.grid(row=2, column=0, columnspan=2)
 
         def about():
             about_win = tk.Toplevel()
