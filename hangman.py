@@ -3,9 +3,11 @@ import tkinter as tk
 from tkinter import ttk, Menu, Toplevel, messagebox
 import sys
 import random
+import collections
 
 
-words = ['hardver', 'alaplap', 'monitor', 'lapolvasó']
+words = ['hardver', 'alaplap', 'monitor', 'lapolvasó', 'memória', 'videókártya', 'hangkártya',\
+         'kivetítő','nyomtató','egér', 'billentyűzet','képpont', 'adatbázis', 'böngésző','jel', 'bit', 'bájt', 'hálózati kártya']
 
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -23,6 +25,7 @@ class App(tk.Tk):
         self.user_char = ''
         self.user_word= ''
         self.error = 0
+        self.best_tippszam = 0
 
         # adatbeviteli mező a betűkhöz
         user_char_value = tk.StringVar()
@@ -47,7 +50,11 @@ class App(tk.Tk):
             self.error = 0
 
             self.word = random.choice(words).upper()
-            self.user_chars = [ "_" for i in self.word ]
+            self.best_tippszam = len(collections.Counter(self.word))
+            print(self.best_tippszam)
+
+            #self.word = 'hálózati kártya'.upper()
+            self.user_chars = [ "_" if i != ' ' else ' ' for i in self.word ]
             print(self.word)
             photo = tk.PhotoImage(file="0.png")
             photo_label.configure(image=photo)
@@ -70,13 +77,17 @@ class App(tk.Tk):
                     user_char_value.set('')
                     if self.user_word == self.word:
                         #print("kitaláltad")
-                        messagebox.showinfo("You Win", "Ügyes vagy kitaláltad as szót {} tippből!".format(self.tippszam))
+                        if self.best_tippszam == self.tippszam:
+                            messagebox.showinfo("You Win",
+                                                "Profi vagy kitaláltad as szót a lehető legkevesebb tippel!")
+                        else:
+                            messagebox.showinfo("You Win", "Ügyes vagy kitaláltad as szót {} tippből!\n Gyakorolj még, mert a profik ez megoldják {} tippből!".format(self.tippszam, self.best_tippszam))
                         user_char.config(state="disabled")
 
                 else:
                     self.error += 1
 
-                    print(self.error, str(self.error) + ".png")
+                    #print(self.error, str(self.error) + ".png")
                     user_char_value.set('')
                     photo = tk.PhotoImage(file=str(self.error) + ".png")
                     photo_label.configure(image = photo)
@@ -84,11 +95,11 @@ class App(tk.Tk):
 
                     #photo_label.grid(row=2, column=0, columnspan=2)
                     #photo_label.update()
-                    print("nincs benne")
+                    #print("nincs benne")
                     if self.error >=7:
                         messagebox.showerror("Game Over","Nincs több lehetőséged, a játék vége!")
                         user_char.config(state="disabled")
-                        print("nincs több lehetőséged")
+                        #print("nincs több lehetőséged")
 
 
 
@@ -102,8 +113,14 @@ class App(tk.Tk):
             word_frame.grid(row=1, column=0, columnspan=2)
 
             for i in range(len(self.word)):
-                btn= ttk.Button(word_frame,text="_", width=2)
-                btn.grid(row=1, column=i)
+                if self.word[i] != ' ':
+                    btn = ttk.Button(word_frame,text="_", width=2)
+                    btn.grid(row=1, column=i)
+                else:
+                    #btn = ttk.Button(word_frame,text=" ", width=2)
+                    label_space = tk.Label(word_frame, text=" ")
+                    label_space.grid(row=1, column=i, padx=10)
+                    #btn.grid_forget()
                 gombok.append(btn)
 
             #kép kijelzése
